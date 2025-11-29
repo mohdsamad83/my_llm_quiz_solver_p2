@@ -1,0 +1,30 @@
+# .github/workflows/hf-sync.yml
+name: Sync to Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Required for Git LFS and proper history sync
+          fetch-depth: 0 
+          lfs: true
+          
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: mohdsamad83
+          SPACE_NAME: my_llm_quiz_solver_p2 # Your Space name
+        run: |
+          # Use the HF_TOKEN to authenticate with the Hugging Face Git remote
+          git remote add space https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${SPACE_NAME}
+          
+          # Force push all code to the 'main' branch on the Hugging Face remote
+          git push --force space main
