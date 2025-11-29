@@ -8,7 +8,6 @@ on:
 jobs:
   sync-wide:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -19,6 +18,14 @@ jobs:
       env:
         HF_TOKEN: ${{ secrets.project2 }}
       run: |
-        git remote remove hf 2>/dev/null || true
-        git remote add hf https://HF_TOKEN@huggingface.co/spaces/mohdsamad83/my_llm_quiz_solver_p2
-        git push hf main --force
+        # fail fast if token is missing
+        if [ -z "$HF_TOKEN" ]; then
+          echo "HF_TOKEN is empty. Ensure secret 'project2' exists in repo secrets."
+          exit 1
+        fi
+
+        # make sure we don't prompt for credentials
+        export GIT_TERMINAL_PROMPT=0
+
+        # push directly using token in URL (no remote add required)
+        git push "https://$HF_TOKEN@huggingface.co/spaces/mohdsamad83/my_llm_quiz_solver_p2" main:main --force
