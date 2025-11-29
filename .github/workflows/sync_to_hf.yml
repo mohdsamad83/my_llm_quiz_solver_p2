@@ -1,4 +1,5 @@
 name: Sync to Hugging Face Space
+
 on:
   push:
     branches: [ main ]
@@ -7,13 +8,17 @@ on:
 jobs:
   sync-wide:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
     - name: Push to Hugging Face Space
       env:
-        project2: ${{ secrets.project2 }}
+        HF_TOKEN: ${{ secrets.project2 }}
       run: |
-        git remote add hf https://$project2@huggingface.co/spaces/mohdsamad83/my_llm_quiz_solver_p2
+        git remote remove hf 2>/dev/null || true
+        git remote add hf https://HF_TOKEN@huggingface.co/spaces/mohdsamad83/my_llm_quiz_solver_p2
         git push hf main --force
